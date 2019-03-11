@@ -7,6 +7,7 @@ import (
 	"github.com/fpawel/elco/pkg/serial-comm/comport"
 	"github.com/fpawel/elco/pkg/serial-comm/modbus"
 	"testing"
+	"time"
 )
 
 func TestCRC16(t *testing.T) {
@@ -87,6 +88,13 @@ func TestRead(t *testing.T) {
 	if err := port.Open("COM24", 9600); err != nil {
 		t.Error(err)
 	}
+
+	if err := SetAddr(port, 1); err != nil {
+		t.Error(err)
+	}
+
+	time.Sleep(time.Millisecond * 100)
+
 	reader := NewComportReader(port, comm.Config{
 		MaxAttemptsRead:       3,
 		ReadTimeoutMillis:     1000,
