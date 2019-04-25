@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS product
     c4_zero   REAL,
     c1_plus50 REAL,
     c4_plus50 REAL,
+    c1_plus20ret REAL,
+    c4_plus20ret REAL,
 
     UNIQUE (party_id, addr),
     UNIQUE (party_id, serial_number),
