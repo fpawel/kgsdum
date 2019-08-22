@@ -3,43 +3,54 @@ package main
 import (
 	"encoding/base64"
 	"flag"
-	"fmt"
 	"github.com/fpawel/gohelp/must"
 	"github.com/fpawel/kgsdum/internal/kgsdum"
+	"log"
 	"os"
 )
 
 func main() {
-	data1Cmd := flag.NewFlagSet("d1", flag.ExitOnError)
-	year := data1Cmd.Int("y", 2019, "filter year")
-	month := data1Cmd.Int("m", 1, "filter month")
-	format := data1Cmd.String("f", "text", "format output (text|base64)")
 
 	if len(os.Args) < 2 {
-		fmt.Println("expected 'd1' subcommand")
-		os.Exit(1)
+		log.Fatalln("expected 'products.table' command")
 	}
 
 	switch os.Args[1] {
 
-	case "d1":
-		if err := data1Cmd.Parse(os.Args[2:]); err != nil {
-			flag.Usage()
-			panic(err)
+	case "products.table":
+
+		productsTableCmd := flag.NewFlagSet("products.table", flag.ExitOnError)
+		year := productsTableCmd.Int("y", -1, "filter year")
+		month := productsTableCmd.Int("m", -1, "filter month")
+		format := productsTableCmd.String("f", "text", "format output (text|base64)")
+
+		if err := productsTableCmd.Parse(os.Args[2:]); err != nil {
+			productsTableCmd.Usage()
+			os.Exit(1)
 		}
+
+		if *year == -1 {
+			log.Fatalln("filter year must be set")
+		}
+		if *month == -1 {
+			log.Fatalln("filter month must be set")
+		}
+
 		bs := must.MarshalJSON(kgsdum.ProductsOfYearMonthDataTable(*year, *month))
 		switch *format {
 		case "text":
 			must.Write(os.Stdout, bs)
 		case "base64":
-			must.Write(base64.NewEncoder(base64.StdEncoding, os.Stdout), bs)
+			if _, err := os.Stdout.WriteString(base64.StdEncoding.EncodeToString(bs)); err != nil {
+				panic(err)
+			}
 		default:
-			panic("wrong format: " + *format)
-
+			log.Println("wrong format:", *format)
+			productsTableCmd.Usage()
+			os.Exit(1)
 		}
 
 	default:
-		fmt.Println("expected 'd1' subcommand")
-		os.Exit(1)
+		log.Fatalln("expected 'products.table' command")
 	}
 }
