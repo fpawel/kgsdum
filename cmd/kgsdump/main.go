@@ -12,20 +12,30 @@ import (
 func main() {
 
 	if len(os.Args) < 2 {
-		log.Fatalln("expected 'products.table' command")
+		log.Fatalln("expected 'products.table' or 'pdf' command")
 	}
 
 	switch os.Args[1] {
 
+	case "pdf":
+		cmd := flag.NewFlagSet("pdf", flag.ExitOnError)
+
+		//products := cmd.String("products", "", "coma separated integer identifiers of products to include in pdf, f.e. 1231,456,789")
+
+		if err := cmd.Parse(os.Args[2:]); err != nil {
+			cmd.Usage()
+			os.Exit(1)
+		}
+
 	case "products.table":
 
-		productsTableCmd := flag.NewFlagSet("products.table", flag.ExitOnError)
-		year := productsTableCmd.Int("y", -1, "filter year")
-		month := productsTableCmd.Int("m", -1, "filter month")
-		format := productsTableCmd.String("f", "text", "format output (text|base64)")
+		cmd := flag.NewFlagSet("products.table", flag.ExitOnError)
+		year := cmd.Int("y", -1, "filter year")
+		month := cmd.Int("m", -1, "filter month")
+		format := cmd.String("f", "text", "format output (text|base64)")
 
-		if err := productsTableCmd.Parse(os.Args[2:]); err != nil {
-			productsTableCmd.Usage()
+		if err := cmd.Parse(os.Args[2:]); err != nil {
+			cmd.Usage()
 			os.Exit(1)
 		}
 
@@ -51,6 +61,6 @@ func main() {
 		}
 
 	default:
-		log.Fatalln("expected 'products.table' command")
+		log.Fatalln("expected 'products.table' or 'pdf' command")
 	}
 }

@@ -1,3 +1,5 @@
 .vscode/
 .idea/
 *generated.go
+build/*
+!build/fonts/
