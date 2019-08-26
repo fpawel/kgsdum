@@ -5,8 +5,11 @@ import (
 	"flag"
 	"github.com/fpawel/gohelp/must"
 	"github.com/fpawel/kgsdum/internal/kgsdum"
+	"github.com/fpawel/kgsdum/internal/pdf"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -19,13 +22,23 @@ func main() {
 
 	case "pdf":
 		cmd := flag.NewFlagSet("pdf", flag.ExitOnError)
-
-		//products := cmd.String("products", "", "coma separated integer identifiers of products to include in pdf, f.e. 1231,456,789")
-
+		strProducts := cmd.String("products", "", "coma separated integer identifiers of products to include in pdf, f.e. 1231,456,789")
 		if err := cmd.Parse(os.Args[2:]); err != nil {
 			cmd.Usage()
 			os.Exit(1)
 		}
+		var products []int64
+		for i, s := range strings.Split(*strProducts, ",") {
+			id, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				log.Fatalln("products:", "position:", i, ":", err)
+			}
+			products = append(products, id)
+		}
+		if len(products) == 0 {
+			log.Fatal("products must be set")
+		}
+		pdf.RunProductIDs(products)
 
 	case "products.table":
 
@@ -56,10 +69,9 @@ func main() {
 			}
 		default:
 			log.Println("wrong format:", *format)
-			productsTableCmd.Usage()
+			cmd.Usage()
 			os.Exit(1)
 		}
-
 	default:
 		log.Fatalln("expected 'products.table' or 'pdf' command")
 	}
