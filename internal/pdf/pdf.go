@@ -106,7 +106,8 @@ func pdfProduct(d *gofpdf.Fpdf, p data.Product) {
 
 	sentence("", "Полезный сигнал: ")
 	if p.C1Plus20 != nil && p.WorkGas3 != nil && *p.C1Plus20 != 0 {
-		sentencef("B", "%s", formatFloat(*p.C1Plus20 - *p.WorkGas3 / *p.C1Plus20, 3))
+		sentence("B",
+			formatFloat(100.*(*p.WorkPlus20-*p.WorkGas3) / *p.WorkPlus20, 2)+"%")
 	} else {
 		sentence("B", "???")
 	}
